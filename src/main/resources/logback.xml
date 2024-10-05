@@ -1,0 +1,20 @@
+<appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    <destination>localhost:5044</destination>
+    <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+        <providers>
+            <timestamp />
+            <logger />
+            <pattern>
+                <pattern>
+                    {
+                    "message": "%msg",
+                    "context": "%X{context}",
+                    "thread": "%thread",
+                    "level": "%level",
+                    "exception": "%ex"
+                    }
+                </pattern>
+            </pattern>
+        </providers>
+    </encoder>
+</appender>
