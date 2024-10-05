@@ -25,7 +25,6 @@ public class MqttController {
     @Autowired
     private MqttPublisher mqttPublisher;
 
-
     @PostMapping("/message")
     public ResponseEntity<String> publishMessage(@RequestParam String message) {
         try {
