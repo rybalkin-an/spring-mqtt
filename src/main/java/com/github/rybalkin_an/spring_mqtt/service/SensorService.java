@@ -25,13 +25,8 @@ public class SensorService {
     private MqttPublisher mqttPublisher;
 
     private final AtomicBoolean isStreaming = new AtomicBoolean(false);
-    private final ObjectMapper objectMapper;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    private Thread streamingThread;
 
-    public SensorService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private Sensor create() {
         Sensor sensor = new Sensor();
@@ -50,29 +45,9 @@ public class SensorService {
         return sensor;
     }
 
-    public void startStreaming() {
-        if (!isStreaming.get()) {
-            isStreaming.set(true);
-            streamingThread = new Thread(() -> streamSensorValues(isStreaming));
-            streamingThread.start();
-            logger.info("Sensor streaming started.");
-        } else {
-            logger.warn("Sensor streaming is already running.");
-        }
-    }
-
-    public void stopStreaming() {
-        if (isStreaming.get()) {
-            isStreaming.set(false);
-            logger.info("Sensor streaming stopping...");
-        } else {
-            logger.warn("Sensor streaming is not running.");
-        }
-    }
-
-    public void streamSensorValues(AtomicBoolean isStreaming) {
+    private void streamSensorValues(AtomicBoolean isStreaming) {
         Sensor sensor = create();
-
+        ObjectMapper objectMapper = new ObjectMapper();
         while (isStreaming.get()) {
             setSensorTemp(sensor);
 
@@ -95,6 +70,26 @@ public class SensorService {
                 logger.warn("Streaming interrupted: {}", e.getMessage());
                 break;
             }
+        }
+    }
+
+    public void startStreaming() {
+        if (!isStreaming.get()) {
+            isStreaming.set(true);
+            Thread streamingThread = new Thread(() -> streamSensorValues(isStreaming));
+            streamingThread.start();
+            logger.info("Sensor streaming started.");
+        } else {
+            logger.warn("Sensor streaming is already running.");
+        }
+    }
+
+    public void stopStreaming() {
+        if (isStreaming.get()) {
+            isStreaming.set(false);
+            logger.info("Sensor streaming stopping...");
+        } else {
+            logger.warn("Sensor streaming is not running.");
         }
     }
 }

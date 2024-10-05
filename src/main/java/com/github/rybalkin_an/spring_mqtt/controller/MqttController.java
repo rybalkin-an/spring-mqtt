@@ -1,16 +1,16 @@
 package com.github.rybalkin_an.spring_mqtt.controller;
 
-import com.github.rybalkin_an.spring_mqtt.config.MqttConfig;
 import com.github.rybalkin_an.spring_mqtt.service.MqttMessageSubscriber;
+import com.github.rybalkin_an.spring_mqtt.service.MqttPublisher;
 import com.github.rybalkin_an.spring_mqtt.service.MqttSubscriber;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -18,35 +18,31 @@ import java.time.Duration;
 @RequestMapping("/mqtt")
 public class MqttController {
 
-    @Autowired
-    private MqttClient mqttClient;
+    private static final Logger logger = LoggerFactory.getLogger(MqttController.class);
 
     @Autowired
     private MqttSubscriber mqttSubscriber;
 
     @Autowired
-    private MqttConfig mqttConfig;
+    private MqttPublisher mqttPublisher;
 
-    @PostMapping("/publish")
+
+    @PostMapping("/message")
     public ResponseEntity<String> publishMessage(@RequestParam String message) {
         try {
-            MqttMessage mqttMessage = new MqttMessage(message.getBytes());
-            mqttMessage.setQos(mqttConfig.getQos());
-            mqttClient.publish(mqttConfig.getTopic(), mqttMessage);
+            mqttPublisher.publish(message);
             return ResponseEntity.ok("Message published: " + message);
-
-        } catch (MqttException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Error publishing message: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body("Error publishing message: " + e.getMessage());
         }
     }
 
-    @GetMapping(value = "/messages", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Object> streamMessages() {
         return Flux.create(sink -> {
             mqttSubscriber.subscribeToMessages(new MqttMessageSubscriber(sink::next));
         }).delayElements(Duration.ofMillis(100));
     }
-
 }
 

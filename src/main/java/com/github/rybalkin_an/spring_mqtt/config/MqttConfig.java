@@ -1,5 +1,6 @@
 package com.github.rybalkin_an.spring_mqtt.config;
 
+import lombok.Getter;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,12 +13,14 @@ public class MqttConfig {
     @Value("${mqtt.broker.url}")
     private String brokerUrl;
 
+    @Getter
     @Value("${mqtt.topic}")
     private String topic;
 
     @Value("${mqtt.client.id}")
     private String clientId;
 
+    @Getter
     @Value("${mqtt.qos}")
     private int qos;
 
@@ -30,11 +33,4 @@ public class MqttConfig {
         return mqttClient;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public int getQos() {
-        return qos;
-    }
 }

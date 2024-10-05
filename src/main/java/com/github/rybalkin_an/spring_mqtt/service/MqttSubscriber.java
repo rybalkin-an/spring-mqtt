@@ -17,7 +17,7 @@ import java.util.concurrent.SubmissionPublisher;
 @Component
 public class MqttSubscriber {
 
-    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriber.class); // Logger initialization
+    private static final Logger logger = LoggerFactory.getLogger(MqttSubscriber.class);
 
     @Autowired
     private MqttClient mqttClient;
@@ -52,7 +52,7 @@ public class MqttSubscriber {
             });
 
         } catch (Exception e) {
-            logger.error("Error during MQTT subscription: {}", e.getMessage(), e); // Log any subscription error
+            logger.error("Error during MQTT subscription: {}", e.getMessage(), e);
         }
     }
 

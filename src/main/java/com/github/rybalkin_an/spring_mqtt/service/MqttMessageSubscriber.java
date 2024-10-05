@@ -6,9 +6,11 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Flow;
 
 public class MqttMessageSubscriber implements Flow.Subscriber<String> {
+
     private static final Logger logger = LoggerFactory.getLogger(MqttMessageSubscriber.class);
 
     private Flow.Subscription subscription;
+
     private final java.util.function.Consumer<String> messageConsumer;
 
     public MqttMessageSubscriber(java.util.function.Consumer<String> messageConsumer) {
