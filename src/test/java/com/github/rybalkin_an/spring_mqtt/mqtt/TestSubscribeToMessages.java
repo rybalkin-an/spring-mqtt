@@ -32,7 +32,7 @@ public class TestSubscribeToMessages {
     void startStream() {
         webClient = WebClient.create("http://localhost:" + randomServerPort);
         assertEquals("Sensor streaming started.", webClient.post()
-                .uri("/api/sensor/start")
+                .uri("/sensor/start")
                 .retrieve()
                 .bodyToMono(String.class)
                 .block()
@@ -42,7 +42,7 @@ public class TestSubscribeToMessages {
     @AfterEach
     void stopStream() {
         assertEquals("Sensor streaming stopped.", webClient.post()
-                .uri("/api/sensor/stop")
+                .uri("/sensor/stop")
                 .retrieve()
                 .bodyToMono(String.class)
                 .block()
