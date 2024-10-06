@@ -2,6 +2,7 @@ package com.github.rybalkin_an.spring_mqtt.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.rybalkin_an.spring_mqtt.config.MqttConfig;
 import com.github.rybalkin_an.spring_mqtt.model.Sensor;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
@@ -24,6 +25,9 @@ public class SensorService {
     @Autowired
     private MqttPublisher mqttPublisher;
 
+    @Autowired
+    private MqttConfig mqttConfig;
+
     private final AtomicBoolean isStreaming = new AtomicBoolean(false);
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -34,6 +38,10 @@ public class SensorService {
         return sensor;
     }
 
+    /**
+     * Generates a random temperature value
+     * @return BigDecimal value randomly selected from the range -20.0 to 50.0.
+     */
     private BigDecimal getRandomTemperature() {
         return BigDecimal.valueOf(-20 + (Math.random() * 70));
     }
@@ -53,7 +61,7 @@ public class SensorService {
 
             try {
                 String sensorData = objectMapper.writeValueAsString(sensor);
-                mqttPublisher.publish(sensorData);
+                mqttPublisher.publish(sensorData, mqttConfig.getTopic(), mqttConfig.getQos());
                 logger.info("Published sensor data: {}", sensorData);
             } catch (JsonProcessingException e) {
                 logger.error("Failed to serialize sensor data: {}", e.getMessage(), e);

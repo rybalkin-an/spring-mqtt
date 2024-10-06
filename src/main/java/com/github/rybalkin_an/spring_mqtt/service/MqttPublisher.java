@@ -1,6 +1,5 @@
 package com.github.rybalkin_an.spring_mqtt.service;
 
-import com.github.rybalkin_an.spring_mqtt.config.MqttConfig;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -17,22 +16,14 @@ public class MqttPublisher {
     @Autowired
     private MqttClient mqttClient;
 
-    @Autowired
-    private MqttConfig mqttConfig;
-
-    public void publish(String messageContent) throws MqttException {
-        try {
-            publishMessage(messageContent);
-            logger.info("Message published: {}", messageContent);
-        } catch (MqttException e) {
-            logger.error("Failed to publish message: {}", messageContent, e);
-            throw e;
-        }
+    public void publish(String messageContent, String topic, int qos) throws MqttException {
+        publishMessage(messageContent, topic, qos);
+        logger.info("Message published to topic '{}': {}", topic, messageContent);
     }
 
-    private void publishMessage(String messageContent) throws MqttException {
+    private void publishMessage(String messageContent, String topic, int qos) throws MqttException {
         MqttMessage message = new MqttMessage(messageContent.getBytes());
-        message.setQos(mqttConfig.getQos());
-        mqttClient.publish(mqttConfig.getTopic(), message);
+        message.setQos(qos);
+        mqttClient.publish(topic, message);
     }
 }

@@ -15,48 +15,39 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
 @Component
-public class MqttSubscriber {
+public class MqttSubscriber implements MqttCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(MqttSubscriber.class);
 
     @Autowired
     private MqttClient mqttClient;
 
-    @Autowired
-    private MqttConfig mqttConfig;
-
     private final SubmissionPublisher<String> publisher = new SubmissionPublisher<>();
 
-    @PostConstruct
-    public void subscribe() throws Exception {
-        try {
-            mqttClient.subscribe(mqttConfig.getTopic());
-            logger.info("Subscribed to topic: {}", mqttConfig.getTopic());
+    public void subscribe(String topic, int qos) throws Exception {
+        mqttClient.subscribe(topic, qos);
+        logger.info("Subscribed to topic: {} with QoS: {}", topic, qos);
+        mqttClient.setCallback(this);
+    }
 
-            mqttClient.setCallback(new MqttCallback() {
-                @Override
-                public void connectionLost(Throwable cause) {
-                    logger.warn("Connection lost: {}", cause.getMessage());
-                }
+    @Override
+    public void connectionLost(Throwable cause) {
+        logger.warn("Connection lost: {}", cause.getMessage());
+    }
 
-                @Override
-                public void messageArrived(String topic, MqttMessage message) {
-                    String receivedMessage = new String(message.getPayload());
-                    logger.info("Message received from topic {}: {}", topic, receivedMessage);
-                    publisher.submit(receivedMessage);
-                }
+    @Override
+    public void messageArrived(String topic, MqttMessage message) {
+        String receivedMessage = new String(message.getPayload());
+        logger.info("Message received from topic {}: {}", topic, receivedMessage);
+        publisher.submit(receivedMessage);
+    }
 
-                @Override
-                public void deliveryComplete(IMqttDeliveryToken token) {
-                }
-            });
-
-        } catch (Exception e) {
-            logger.error("Error during MQTT subscription: {}", e.getMessage(), e);
-        }
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
     }
 
     public void subscribeToMessages(Flow.Subscriber<String> subscriber) {
         publisher.subscribe(subscriber);
     }
 }
+
