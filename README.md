@@ -2,12 +2,14 @@
 
 This application demonstrates a simple implementation of MQTT sensor streaming using Spring Boot. It allows you to start and stop the streaming of sensor data and publish messages to an MQTT broker.
 
+The `/subscribe` endpoint can be used to retrieve data from Topic
+
 ## Features
 
-- Start and stop streaming of sensor data.
-- Publish messages to an MQTT topic. https://test.mosquitto.org/
-- Stream messages from the MQTT broker.
-- Test using **io.projectreactor:reactor-test** library
+- `sensor/start` and `sensor/stop` streaming of sensor data.
+- `mqtt/message` to publish messages to an MQTT topic. https://test.mosquitto.org/
+- `mqtt/subscribe` to get stream messages from the MQTT broker.
+- Tests are using https://github.com/reactor/reactor-core library
 
 ## Technologies Used
 
@@ -55,18 +57,52 @@ mqtt.qos=2
 ### API Endpoints
 
    ```bash
-   # Start streaming
-   curl -X POST http://localhost:8080/sensor/start
-  
-   # Stop streaming
-   curl -X POST http://localhost:8080/sensor/stop
-  
-   # Publish a Message
-   curl -X POST http://localhost:8080/mqtt/message?message=12345
+# MQTT Controller Endpoints
 
-   #Subscribe to streamed messages from the MQTT broker:
-   curl http://localhost:8080/api/sensor/subscribe
+# 1. Publish Message to MQTT Topic
+# Endpoint: POST /mqtt/message
+# Description: Publishes a message to a specified MQTT topic.
+# Parameters:
+#   - message (required): The message to be published.
+#   - topic (required): The MQTT topic to publish to.
+#   - qos (optional, default: 1): Quality of Service level.
+# Response: Success or error message.
+curl -X POST "http://localhost:8080/mqtt/message?message=Hello&topic=test/topic&qos=1"
+
+# 2. Stream Messages from MQTT Topic
+# Endpoint: GET /mqtt/subscribe
+# Description: Subscribes to a specified MQTT topic and streams incoming messages.
+# Parameters:
+#   - topic (required): The MQTT topic to subscribe to.
+#   - qos (required): Quality of Service level.
+# Response: Server-Sent Events (SSE) stream with MQTT messages.
+curl "http://localhost:8080/mqtt/subscribe?topic=test/topic&qos=1"
+
+# 3. Disconnect MQTT Client
+# Endpoint: POST /mqtt/disconnect
+# Description: Disconnects the MQTT client from the broker.
+# Response: Success or error message.
+curl -X POST "http://localhost:8080/mqtt/disconnect"
+
+# 4. Reconnect MQTT Client
+# Endpoint: POST /mqtt/reconnect
+# Description: Reconnects the MQTT client to the broker if disconnected.
+# Response: Success or error message.
+curl -X POST "http://localhost:8080/mqtt/reconnect"
+
+
+# Sensor Controller Endpoints
+
+# 1. Start/Stop Sensor Data Streaming
+# Endpoint: POST /sensor/{toggle}
+# Description: Starts or stops the sensor data streaming process.
+# Path Variables:
+#   - toggle (required): Use 'start' to begin streaming or 'stop' to halt streaming.
+# Response: Success or error message.
+curl -X POST "http://localhost:8080/sensor/start"
+curl -X POST "http://localhost:8080/sensor/stop"
    ```
+
 ### Running Tests
    ```bash 
    ./gradlew test 
