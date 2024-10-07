@@ -1,7 +1,5 @@
 package com.github.rybalkin_an.spring_mqtt.service;
 
-import com.github.rybalkin_an.spring_mqtt.config.MqttConfig;
-import jakarta.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;

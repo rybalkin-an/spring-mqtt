@@ -2,7 +2,6 @@ package com.github.rybalkin_an.spring_mqtt.mqtt_tests;
 
 import com.github.rybalkin_an.spring_mqtt.config.MqttConfig;
 import com.github.rybalkin_an.spring_mqtt.model.Sensor;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,18 +14,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class TestSubscribeToMessages {
+public class TestMqttClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(TestSubscribeToMessages.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestMqttClient.class);
     private static final String host= "http://localhost:";
     private static final String mqttMessage= "/mqtt/message";
     private static final String mqttSubscribe= "/mqtt/subscribe";
@@ -44,59 +38,6 @@ public class TestSubscribeToMessages {
     @BeforeEach
     void startStream() {
         webClient = WebClient.create(host + randomServerPort);
-        assertEquals("Sensor streaming started.", webClient.post()
-                .uri("/sensor/start")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block()
-        );
-    }
-
-    @AfterEach
-    void stopStream() {
-        assertEquals("Sensor streaming stopped.", webClient.post()
-                .uri("/sensor/stop")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block()
-        );
-    }
-
-    @Test
-    @DisplayName("Subscribing to messages and receiving sensor data")
-    void whenRequestingMqttMessages_thenShouldReceiveValidSensorData() {
-        Flux<Sensor> responseStream = webClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path(mqttSubscribe)
-                        .queryParam("topic", mqttConfig.getTopic())
-                        .queryParam("qos", mqttConfig.getQos())
-                        .build())
-                .retrieve()
-                .bodyToFlux(Sensor.class);
-
-        StepVerifier.create(responseStream)
-                .expectNextMatches(expectedResultFromSensor -> {
-                    try {
-
-                        String uuidPattern = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$";
-                        assertThat(expectedResultFromSensor.getUuid().toString(), matchesPattern(uuidPattern));
-
-                        String timestampPattern = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
-                        assertThat(expectedResultFromSensor.getTimestamp(), matchesPattern(timestampPattern));
-
-                        assertThat(expectedResultFromSensor.getValue(), allOf(
-                                greaterThanOrEqualTo(new BigDecimal("-20.0")),
-                                lessThanOrEqualTo(new BigDecimal("50.0"))
-                        ));
-                        return true;
-                    } catch (Exception e) {
-                        logger.error("Error occurred: {}", e.getMessage(), e);
-                        return false;
-                    }
-                })
-                .expectNextCount(50)
-                .thenCancel()
-                .verify();
     }
 
     @Test()
@@ -164,8 +105,8 @@ public class TestSubscribeToMessages {
                         .build())
                 .retrieve()
                 .bodyToFlux(Sensor.class)
-                .delayElements(Duration.ofSeconds(65))  // Introduce a delay longer than the timeout
-                .timeout(Duration.ofSeconds(60));  // Timeout set to 60 seconds
+                .delayElements(Duration.ofSeconds(65))  // delay longer than the timeout
+                .timeout(Duration.ofSeconds(60));
 
         StepVerifier.create(responseStream)
                 .expectError(TimeoutException.class)

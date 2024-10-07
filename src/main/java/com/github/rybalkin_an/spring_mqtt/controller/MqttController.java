@@ -1,6 +1,5 @@
 package com.github.rybalkin_an.spring_mqtt.controller;
 
-import com.github.rybalkin_an.spring_mqtt.config.MqttConfig;
 import com.github.rybalkin_an.spring_mqtt.service.MqttMessageSubscriber;
 import com.github.rybalkin_an.spring_mqtt.service.MqttPublisher;
 import com.github.rybalkin_an.spring_mqtt.service.MqttSubscriber;
