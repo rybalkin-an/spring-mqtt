@@ -108,16 +108,12 @@ curl -X POST "http://localhost:8080/sensor/stop"
    ./gradlew test 
    ```
 [TestSubscribeToSensor.java](src%2Ftest%2Fjava%2Fcom%2Fgithub%2Frybalkin_an%2Fspring_mqtt%2Fmqtt_tests%2FTestSubscribeToSensor.java) is ensures the MQTT subscription and data integrity are functioning correctly:
-
-- Uses @SpringBootTest to run the application on a random port.
-- Starts and stops sensor streaming before and after each test.
-- Sends a GET request to subscribe to MQTT messages and checks that received sensor data:
-  - Matches UUID and timestamp patterns.
-  - Falls within the temperature range of -20.0 to 50.0.
-  - Uses StepVerifier to expect 50 valid sensor messages.
-  - Check the timestamp in the right order
+- Matches UUID and timestamp patterns.
+- Falls within the temperature range of -20.0 to 50.0.
+- Uses StepVerifier to expect 50 valid sensor messages.
+- Check the timestamp in the right order.
 
 [TestMqttClient.java](src%2Ftest%2Fjava%2Fcom%2Fgithub%2Frybalkin_an%2Fspring_mqtt%2Fmqtt_tests%2FTestMqttClient.java) is ensures the MQTT client:
-- Message Publishing Validation
-- Disconnect/reconnect
-- Validate delayed messages that exceed the timeout
+- Message Publishing Validation.
+- Disconnect/reconnect.
+- Validate delayed messages that exceed the timeout.
