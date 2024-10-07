@@ -2,7 +2,7 @@
 
 This application demonstrates a simple implementation of MQTT sensor streaming using Spring Boot. It allows you to start and stop the streaming of sensor data and publish messages to an MQTT broker.
 
-The `/subscribe` endpoint can be used to retrieve data from Topic
+The `mqtt/subscribe` endpoint can be used to retrieve data from Topic
 
 ## Features
 
