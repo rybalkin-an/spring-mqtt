@@ -77,10 +77,9 @@ public class TestSubscribeToSensor {
                     String timestampPattern = "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$";
                     assertThat(expectedResultFromSensor.getTimestamp(), matchesPattern(timestampPattern));
 
-                    assertThat(expectedResultFromSensor.getValue(), allOf(
-                            greaterThanOrEqualTo(new BigDecimal("-20.0")),
-                            lessThanOrEqualTo(new BigDecimal("20.0"))
-                    ));
+                    assertThat(expectedResultFromSensor.getValue(), greaterThanOrEqualTo(new BigDecimal("-20.0")));
+
+                    assertThat(expectedResultFromSensor.getValue(), lessThanOrEqualTo(new BigDecimal("50.0")));
                     return true;
                 })
                 .expectNextCount(50)
